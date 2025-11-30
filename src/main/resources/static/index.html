@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Викторина</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome для иконок -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            font-family: 'Roboto', sans-serif;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .container-fluid {
+            max-width: 1200px;
+        }
+        .card {
+            background: rgba(255, 255, 255, 0.1);
+            border: none;
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        }
+        .question-area, .options-area {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 15px;
+        }
+        .radio-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        .radio-group label {
+            flex: 1 1 45%;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            padding: 10px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        .radio-group label:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+        .btn-custom {
+            background: linear-gradient(45deg, #ff6b6b, #feca57);
+            border: none;
+            color: white;
+            font-weight: bold;
+            transition: transform 0.2s;
+        }
+        .btn-custom:hover {
+            transform: scale(1.05);
+        }
+        .toast-container {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 1050;
+        }
+        .name-toast .toast-body {
+            background: rgba(0, 0, 0, 0.8);
+            color: white;
+            border-radius: 10px;
+        }
+        .name-toast label {
+            color: white;
+        }
+
+        /* Красивый стиль таблицы лидеров под тему проекта */
+        .leader-table {
+            width: 100%;
+            border-collapse: collapse;
+            background: rgba(255, 255, 255, 0.15);
+            border-radius: 12px;
+            overflow: hidden;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+        }
+        .leader-table thead {
+            background: rgba(255, 255, 255, 0.25);
+        }
+        .leader-table th {
+            padding: 12px;
+            font-weight: 600;
+            color: #2f1e57;
+            text-align: center;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        .leader-table td {
+            padding: 12px;
+            text-align: center;
+            color: #f7f4ff;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            transition: background 0.3s ease;
+        }
+        .leader-table tbody tr:hover td {
+            background: rgba(255, 255, 255, 0.12);
+        }
+        /* Топ-3: золото, серебро, бронза */
+        .top1 td {
+            color: #ffdf57;
+            font-weight: 700;
+            text-shadow: 0 0 6px rgba(255, 223, 87, 0.6);
+        }
+        .top1 td:first-child::before {
+            content: "🥇 ";
+        }
+        .top2 td {
+            color: #d8e1ff;
+            font-weight: 700;
+        }
+        .top2 td:first-child::before {
+            content: "🥈 ";
+        }
+        .top3 td {
+            color: #ffba80;
+            font-weight: 700;
+        }
+        .top3 td:first-child::before {
+            content: "🥉 ";
+        }
+        /* Анимация появления строк */
+        .leader-row {
+            animation: fadeIn 0.5s ease-in-out;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        /* Карточка лидеров */
+        .leader-card {
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 16px;
+            padding: 20px;
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.35);
+        }
+    </style>
+</head>
+<body>
+<div class="container-fluid p-4">
+    <div class="row">
+        <!-- Левая панель: Вопрос и варианты -->
+        <div class="col-md-8 position-relative">
+            <div class="card p-4">
+                <h2 class="text-center mb-4"><i class="fas fa-question-circle"></i> Викторина</h2>
+
+                <!-- Вопрос -->
+                <div class="question-area">
+                    <h4 id="question">Вопрос</h4>
+                </div>
+
+                <!-- Варианты ответов -->
+                <div class="options-area">
+                    <div class="radio-group">
+                        <label><input type="radio" name="answer" value="1"> <span id="option1">Вариант 1</span></label>
+                        <label><input type="radio" name="answer" value="2"> <span id="option2">Вариант 2</span></label>
+                        <label><input type="radio" name="answer" value="3"> <span id="option3">Вариант 3</span></label>
+                        <label><input type="radio" name="answer" value="4"> <span id="option4">Вариант 4</span></label>
+                    </div>
+                </div>
+
+                <!-- Кнопка -->
+                <button id="submitBtn" class="btn btn-custom w-100" disabled>Ответить</button>
+            </div>
+
+            <!-- Контейнер для уведомлений внутри левой панели -->
+            <div class="toast-container">
+                <!-- Toast для имени -->
+                <div id="nameToast" class="toast name-toast" role="alert" aria-live="assertive" aria-atomic="true">
+                    <div class="toast-body">
+                        <label for="userNameInput" class="fw-bold">Введите ваше имя:</label>
+                        <input type="text" id="userNameInput" class="form-control mt-2" placeholder="Ваше имя">
+                        <button type="button" class="btn btn-primary mt-2 w-100" onclick="submitName()">Подтвердить</button>
+                    </div>
+                </div>
+                <!-- Toast для результата -->
+                <div id="scoreToast" class="toast align-items-center text-white border-0" role="alert" aria-live="assertive" aria-atomic="true">
+                    <div class="d-flex">
+                        <div class="toast-body">
+                            <i class="fas fa-check-circle me-2" id="resultIcon"></i>
+                            <span id="scoreMessage"></span>
+                        </div>
+                        <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+                    </div>
+                </div>
+                <!-- Toast для ошибок -->
+                <div id="errorToast" class="toast align-items-center text-white bg-danger border-0" role="alert" aria-live="assertive" aria-atomic="true">
+                    <div class="d-flex">
+                        <div class="toast-body">
+                            <i class="fas fa-exclamation-triangle me-2"></i>
+                            <span id="errorMessage"></span>
+                        </div>
+                        <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Правая панель: Таблица лидеров -->
+        <div class="col-md-4">
+            <div class="card leader-card p-4">
+                <h4 class="text-center mb-3"><i class="fas fa-trophy"></i> Таблица лидеров</h4>
+                <div class="table-responsive">
+                    <table class="leader-table">
+                        <thead>
+                        <tr>
+                            <th>Место</th>
+                            <th>Имя</th>
+                            <th>Очки</th>
+                        </tr>
+                        </thead>
+                        <tbody id="leaderboardBody">
+                        <!-- Динамически заполняется -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Bootstrap JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    let ws = null;
+    let userName = null;
+    let selectedAnswer = 0;
+    let nameToast, scoreToast, errorToast;
+
+    // Инициализация
+    window.onload = function() {
+        nameToast = new bootstrap.Toast(document.getElementById('nameToast'), { autohide: false });
+        scoreToast = new bootstrap.Toast(document.getElementById('scoreToast'), { delay: 2000 });
+        errorToast = new bootstrap.Toast(document.getElementById('errorToast'), { delay: 2000 });
+        showNamePrompt();
+    };
+
+    function showNamePrompt() {
+        nameToast.show();
+    }
+
+    function submitName() {
+        userName = document.getElementById('userNameInput').value.trim();
+        if (!userName) {
+            document.getElementById('userNameInput').classList.add('is-invalid');
+            return;
+        }
+        document.getElementById('userNameInput').classList.remove('is-invalid');
+        nameToast.hide();
+        connect();
+    }
+
+    // Подключение к WebSocket
+    function connect() {
+        ws = new WebSocket('ws://192.168.100.200:8080/quiz');
+        ws.onopen = function() {
+            console.log('Connected');
+            ws.send("USERNAME:" + userName);
+        };
+        ws.onmessage = function(event) {
+            processServerMessage(event.data);
+        };
+        ws.onerror = function(error) {
+            console.log('Error: ' + error);
+            showErrorToast('Не удалось подключиться к серверу.');
+        };
+        ws.onclose = function() {
+            console.log('Connection closed');
+        };
+    }
+
+    // Обработка сообщений от сервера
+    function processServerMessage(msg) {
+        console.log('Received: ' + msg);
+        if (msg.startsWith("QUESTION|")) {
+            const parts = msg.split("|");
+            if (parts.length >= 6) {
+                document.getElementById('question').textContent = parts[1];
+                document.getElementById('option1').textContent = parts[2];
+                document.getElementById('option2').textContent = parts[3];
+                document.getElementById('option3').textContent = parts[4];
+                document.getElementById('option4').textContent = parts[5];
+                document.querySelectorAll('input[name="answer"]').forEach(r => r.checked = false);
+                selectedAnswer = 0;
+                document.getElementById('submitBtn').disabled = false;
+            }
+        } else if (msg.startsWith("LEADERBOARD|")) {
+            const tbody = document.getElementById('leaderboardBody');
+            tbody.innerHTML = '';
+            const data = msg.substring("LEADERBOARD|".length);
+            const entries = data.split("|");
+            entries.forEach((entry, index) => {
+                if (entry) {
+                    const fields = entry.split(";");
+                    if (fields.length === 3) {
+                        const place = parseInt(fields[0]);
+                        const className = place === 1 ? 'top1' : place === 2 ? 'top2' : place === 3 ? 'top3' : '';
+                        const row = `<tr class="leader-row ${className}"><td>${fields[0]}</td><td>${fields[1]}</td><td>${fields[2]}</td></tr>`;
+                        tbody.innerHTML += row;
+                    }
+                }
+            });
+        } else if (msg.startsWith("ANSWER_RESULT|")) {
+            const parts = msg.split("|");
+            if (parts.length >= 3) {
+                const result = parts[1];
+                const points = parts[2];
+                const toastEl = document.getElementById('scoreToast');
+                const iconEl = document.getElementById('resultIcon');
+                if (result === "correct") {
+                    toastEl.classList.remove('bg-danger');
+                    toastEl.classList.add('bg-success');
+                    iconEl.className = 'fas fa-check-circle me-2';
+                    document.getElementById('scoreMessage').textContent = `Правильно! Вы получили ${points} очков.`;
+                } else {
+                    toastEl.classList.remove('bg-success');
+                    toastEl.classList.add('bg-danger');
+                    iconEl.className = 'fas fa-times-circle me-2';
+                    document.getElementById('scoreMessage').textContent = "Неправильно!";
+                }
+                scoreToast.show();
+                document.getElementById('submitBtn').disabled = true;
+            }
+        }
+    }
+
+    // Обработчики событий
+    document.querySelectorAll('input[name="answer"]').forEach(radio => {
+        radio.addEventListener('change', function() {
+            selectedAnswer = parseInt(this.value);
+        });
+    });
+
+    document.getElementById('submitBtn').addEventListener('click', function() {
+        if (selectedAnswer < 1 || selectedAnswer > 4) {
+            showErrorToast('Пожалуйста, выберите ответ.');
+            return;
+        }
+        ws.send("ANSWER:" + selectedAnswer);
+        this.disabled = true;
+    });
+
+    // Функция для ошибок
+    function showErrorToast(message) {
+        document.getElementById('errorMessage').textContent = message;
+        errorToast.show();
+    }
+</script>
+</body>
+</html>

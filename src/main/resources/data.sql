@@ -1,0 +1,4 @@
+INSERT INTO quiz_question (question, option1, option2, option3, option4, correct_option) VALUES
+                                                                                                                   ('Что такое Java?', 'Язык программирования', 'Кофе', 'Остров', 'Машина', 1),
+                                                                                                                   ('Какой год был основан Java?', '1995', '2000', '1985', '2010', 1),
+                                                                                                                   ('Что такое Spring?', 'Фреймворк', 'Весна', 'Река', 'Цветок', 1);

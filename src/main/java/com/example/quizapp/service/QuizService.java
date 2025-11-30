@@ -1,0 +1,90 @@
+package com.example.quizapp.service;
+
+import com.example.quizapp.entity.QuizQuestion;
+import com.example.quizapp.entity.UserScore;
+import com.example.quizapp.repository.QuizQuestionRepository;
+import com.example.quizapp.repository.UserScoreRepository;
+import jakarta.annotation.PostConstruct;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.*;
+
+@Service
+public class QuizService {
+    @Autowired
+    private QuizQuestionRepository questionRepo;
+    @Autowired
+    private UserScoreRepository scoreRepo;
+
+    private List<QuizQuestion> questions;
+    private int currentIndex = 0;
+    private Map<String, Integer> currentAnswers = new ConcurrentHashMap<>();
+    private int totalClients = 0;
+
+    @PostConstruct
+    public void init() {
+        loadQuestions();
+    }
+
+    public void loadQuestions() {
+        questions = questionRepo.findAll();
+        if (questions.isEmpty()) {
+            throw new RuntimeException("Нет вопросов в базе данных!");
+        }
+    }
+
+
+    public QuizQuestion getCurrentQuestion() {
+        return questions.get(currentIndex);
+    }
+
+    public void addClient() {
+        totalClients++;
+    }
+
+    public void removeClient() {
+        totalClients--;
+    }
+
+    public void submitAnswer(String userName, int answer) {
+        if (!currentAnswers.containsKey(userName)) {
+            currentAnswers.put(userName, answer);
+            if (currentAnswers.size() == totalClients) {
+                processAnswers();
+                nextQuestion();
+            }
+        }
+    }
+
+    public int getCurrentAnswersSize() {
+        return currentAnswers.size();
+    }
+
+    private void processAnswers() {
+        for (Map.Entry<String, Integer> entry : currentAnswers.entrySet()) {
+            String user = entry.getKey();
+            int answer = entry.getValue();
+            boolean correct = answer == getCurrentQuestion().getCorrectOption();
+            UserScore score = scoreRepo.findById(user).orElse(new UserScore());
+            score.setUserName(user);
+            if (correct) {
+                score.setPoints(score.getPoints() + 100); // Добавляем 100 к существующему
+            }
+            scoreRepo.save(score);
+        }
+        currentAnswers.clear();
+    }
+
+    public void nextQuestion() {
+        currentIndex = (currentIndex + 1) % questions.size();
+    }
+
+    public List<UserScore> getLeaderboard() {
+        return scoreRepo.findAll().stream()
+                .sorted((a, b) -> Integer.compare(b.getPoints(), a.getPoints()))
+                .toList();
+    }
+}
