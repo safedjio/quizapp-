@@ -9,7 +9,6 @@ public class UserScore {
     private String userName;
     private int points;
 
-    // Геттеры и сеттеры
     public String getUserName() { return userName; }
     public void setUserName(String userName) { this.userName = userName; }
     public int getPoints() { return points; }

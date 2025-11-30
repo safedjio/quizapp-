@@ -4,9 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Викторина</title>
-    <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <!-- Font Awesome для иконок -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         body {
@@ -114,7 +112,6 @@
             50% { transform: scale(1.05); }
             100% { transform: scale(1); }
         }
-        /* Красивый стиль таблицы лидеров под тему проекта */
         .leader-table {
             width: 100%;
             border-collapse: collapse;
@@ -144,7 +141,6 @@
         .leader-table tbody tr:hover td {
             background: rgba(255, 255, 255, 0.12);
         }
-        /* Топ-3: золото, серебро, бронза */
         .top1 td {
             color: #ffdf57;
             font-weight: 700;
@@ -167,7 +163,6 @@
         .top3 td:first-child::before {
             content: "🥉 ";
         }
-        /* Анимация появления строк */
         .leader-row {
             animation: fadeIn 0.5s ease-in-out;
         }
@@ -175,7 +170,6 @@
             from { opacity: 0; transform: translateY(10px); }
             to { opacity: 1; transform: translateY(0); }
         }
-        /* Карточка лидеров */
         .leader-card {
             background: rgba(255, 255, 255, 0.2);
             border-radius: 16px;
@@ -192,21 +186,15 @@
         <div class="col-md-8 position-relative">
             <div class="card p-4">
                 <h2 class="text-center mb-4"><i class="fas fa-question-circle"></i> Викторина</h2>
-
-                <!-- Вопрос -->
                 <div class="question-area">
                     <h4 id="question">Вопрос</h4>
                 </div>
-
-                <!-- Таймер -->
                 <div class="timer-container">
                     <div class="timer-bar">
                         <div id="timerProgress" class="timer-progress"></div>
                     </div>
                     <div id="timerText" class="timer-text">Осталось: 30 сек</div>
                 </div>
-
-                <!-- Варианты ответов -->
                 <div class="options-area">
                     <div class="radio-group">
                         <label><input type="radio" name="answer" value="1"> <span id="option1">Вариант 1</span></label>
@@ -215,14 +203,11 @@
                         <label><input type="radio" name="answer" value="4"> <span id="option4">Вариант 4</span></label>
                     </div>
                 </div>
-
-                <!-- Кнопка -->
                 <button id="submitBtn" class="btn btn-custom w-100" disabled>Ответить</button>
             </div>
 
             <!-- Контейнер для уведомлений внутри левой панели -->
             <div class="toast-container">
-                <!-- Toast для имени -->
                 <div id="nameToast" class="toast name-toast" role="alert" aria-live="assertive" aria-atomic="true">
                     <div class="toast-body">
                         <label for="userNameInput" class="fw-bold">Введите ваше имя:</label>
@@ -230,7 +215,6 @@
                         <button type="button" class="btn btn-primary mt-2 w-100" onclick="submitName()">Подтвердить</button>
                     </div>
                 </div>
-                <!-- Toast для результата -->
                 <div id="scoreToast" class="toast align-items-center text-white border-0" role="alert" aria-live="assertive" aria-atomic="true">
                     <div class="d-flex">
                         <div class="toast-body">
@@ -240,7 +224,6 @@
                         <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
                     </div>
                 </div>
-                <!-- Toast для ошибок -->
                 <div id="errorToast" class="toast align-items-center text-white bg-danger border-0" role="alert" aria-live="assertive" aria-atomic="true">
                     <div class="d-flex">
                         <div class="toast-body">
@@ -267,7 +250,6 @@
                         </tr>
                         </thead>
                         <tbody id="leaderboardBody">
-                        <!-- Динамически заполняется -->
                         </tbody>
                     </table>
                 </div>
@@ -276,7 +258,6 @@
     </div>
 </div>
 
-<!-- Bootstrap JS -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script>
     let ws = null;
@@ -284,10 +265,9 @@
     let selectedAnswer = 0;
     let timerInterval;
     let timeLeft;
-    let totalTime = 30;  // Фиксировано 30 секунд
+    let totalTime = 30;
     let nameToast, scoreToast, errorToast;
 
-    // Инициализация
     window.onload = function() {
         nameToast = new bootstrap.Toast(document.getElementById('nameToast'), { autohide: false });
         scoreToast = new bootstrap.Toast(document.getElementById('scoreToast'), { delay: 2000 });
@@ -310,7 +290,6 @@
         connect();
     }
 
-    // Подключение к WebSocket
     function connect() {
         ws = new WebSocket('ws://192.168.100.200:8080/quiz');
         ws.onopen = function() {
@@ -329,7 +308,6 @@
         };
     }
 
-    // Обработка сообщений от сервера
     function processServerMessage(msg) {
         console.log('Received: ' + msg);
         if (msg.startsWith("QUESTION|")) {
@@ -408,7 +386,6 @@
         }, 1000);
     }
 
-    // Обработчики событий
     document.querySelectorAll('input[name="answer"]').forEach(radio => {
         radio.addEventListener('change', function() {
             selectedAnswer = parseInt(this.value);
@@ -424,7 +401,6 @@
         this.disabled = true;
     });
 
-    // Функция для ошибок
     function showErrorToast(message) {
         document.getElementById('errorMessage').textContent = message;
         errorToast.show();
