@@ -42,18 +42,32 @@ public class QuizWebSocketHandler extends TextWebSocketHandler {
         if (payload.startsWith("USERNAME:")) {
             String userName = payload.substring("USERNAME:".length());
             sessions.put(session, userName);
+        } else if (payload.startsWith("CATEGORY:")) {
+            String category = payload.substring("CATEGORY:".length());
+            quizService.setCategory(category);
+            sendCurrentQuestion(session);
+            quizService.startTimer();
         } else if (payload.startsWith("ANSWER:")) {
             int answer = Integer.parseInt(payload.substring("ANSWER:".length()));
             String userName = sessions.get(session);
             quizService.submitAnswer(userName, answer);
-            // Отправляем результат пользователю
             boolean correct = answer == quizService.getCurrentQuestion().getCorrectOption();
             session.sendMessage(new TextMessage("ANSWER_RESULT|" + (correct ? "correct" : "incorrect") + "|100"));
-            // Отправляем обновлённый лидерборд всем
             broadcastLeaderboard();
-            // Если все ответили, следующий вопрос
             if (quizService.getCurrentAnswersSize() == 0) {
+                quizService.nextQuestion();
                 broadcastQuestion();
+                quizService.startTimer();
+            }
+        } else if (payload.equals("TIME_UP")) {
+            String userName = sessions.get(session);
+            quizService.submitAnswer(userName, 0);  // Неправильный ответ
+            session.sendMessage(new TextMessage("ANSWER_RESULT|incorrect|0"));  // Показать результат
+            broadcastLeaderboard();
+            if (quizService.getCurrentAnswersSize() == 0) {
+                quizService.nextQuestion();
+                broadcastQuestion();
+                quizService.startTimer();
             }
         }
     }

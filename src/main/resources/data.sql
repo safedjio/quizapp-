@@ -1,4 +1,9 @@
-INSERT INTO quiz_question (question, option1, option2, option3, option4, correct_option) VALUES
-                                                                                                                   ('Что такое Java?', 'Язык программирования', 'Кофе', 'Остров', 'Машина', 1),
-                                                                                                                   ('Какой год был основан Java?', '1995', '2000', '1985', '2010', 1),
-                                                                                                                   ('Что такое Spring?', 'Фреймворк', 'Весна', 'Река', 'Цветок', 1);
+INSERT INTO quiz_question (question, option1, option2, option3, option4, correct_option, time_limit, category) VALUES
+                                                                                                                   ('Что такое Java?', 'Язык программирования', 'Кофе', 'Остров', 'Машина', 1, 30, 'JavaNovice'),
+                                                                                                                   ('Какой год был основан Java?', '1995', '2000', '1985', '2010', 1, 30, 'JavaNovice'),
+                                                                                                                   ('Что такое Spring?', 'Фреймворк', 'Весна', 'Река', 'Цветок', 1, 30, 'JavaNovice'),
+                                                                                                                   ('Что такое JVM?', 'Java Virtual Machine', 'Java Version Manager', 'Java Variable Method', 'Java Visual Model', 1, 30, 'JavaNovice'),
+                                                                                                                   ('Как объявить переменную в Java?', 'int x = 5;', 'var x = 5;', 'x = 5 int;', '5 = x;', 1, 30, 'JavaNovice'),
+                                                                                                                   ('Что такое аннотация в Java?', 'Специальный комментарий', 'Метод класса', 'Тип данных', 'Цикл', 1, 30, 'JavaAdvanced'),
+                                                                                                                   ('Как работает Garbage Collector?', 'Автоматически очищает память', 'Ручная очистка', 'Создаёт объекты', 'Компилирует код', 1, 30, 'JavaAdvanced'),
+                                                                                                                   ('Что такое Stream API?', 'API для работы с потоками данных', 'Многопоточность', 'Сетевые потоки', 'Файловые потоки', 1, 30, 'JavaAdvanced');
