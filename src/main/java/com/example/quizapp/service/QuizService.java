@@ -6,7 +6,6 @@ import com.example.quizapp.repository.QuizQuestionRepository;
 import com.example.quizapp.repository.UserScoreRepository;
 import jakarta.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -21,8 +20,6 @@ public class QuizService {
     @Autowired
     private UserScoreRepository scoreRepo;
 
-    @Value("${quiz.category:JavaNovice}")  // Категория из application.properties, по умолчанию JavaNovice, продвинутый уровень JavaAdvanced
-    private String currentCategory;
 
     private List<QuizQuestion> questions;
     private int currentIndex = 0;
@@ -37,9 +34,9 @@ public class QuizService {
     }
 
     public void loadQuestions() {
-        questions = questionRepo.findByCategory(currentCategory);
+        questions = questionRepo.findAll();
         if (questions.isEmpty()) {
-            throw new RuntimeException("Нет вопросов в категории: " + currentCategory);
+            throw new RuntimeException("Нет вопросов в базе данных!");
         }
     }
 
@@ -86,11 +83,6 @@ public class QuizService {
 
     public void nextQuestion() {
         currentIndex = (currentIndex + 1) % questions.size();
-    }
-
-    public void setCategory(String category) {
-        this.currentCategory = category;
-        loadQuestions();
     }
 
     public List<UserScore> getLeaderboard() {

@@ -6,8 +6,7 @@ CREATE TABLE quiz_question (
                                option3 VARCHAR(255) NOT NULL,
                                option4 VARCHAR(255) NOT NULL,
                                correct_option INT NOT NULL,
-                               time_limit INT NOT NULL DEFAULT 30,
-                               category VARCHAR(255) NOT NULL
+                               time_limit INT NOT NULL DEFAULT 30
 );
 
 CREATE TABLE user_score (

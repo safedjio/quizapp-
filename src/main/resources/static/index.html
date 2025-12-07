@@ -366,6 +366,7 @@
 
     function startTimer() {
         clearInterval(timerInterval);
+        document.getElementById('timerText').classList.remove('timer-warning');
         document.getElementById('timerText').textContent = `Осталось: ${timeLeft} сек`;
         document.getElementById('timerProgress').style.width = '100%';
         timerInterval = setInterval(() => {
@@ -376,7 +377,7 @@
             if (timeLeft <= 5) {
                 document.getElementById('timerText').classList.add('timer-warning');  // Пульсация при <5 сек
             }
-            if (timeLeft <= 0) {
+            if (timeLeft <= 0 ) {
                 clearInterval(timerInterval);
                 document.getElementById('timerText').classList.remove('timer-warning');
                 ws.send("TIME_UP");

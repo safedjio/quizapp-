@@ -41,18 +41,13 @@ public class QuizWebSocketHandler extends TextWebSocketHandler {
         if (payload.startsWith("USERNAME:")) {
             String userName = payload.substring("USERNAME:".length());
             sessions.put(session, userName);
-        } else if (payload.startsWith("CATEGORY:")) {
-            String category = payload.substring("CATEGORY:".length());
-            quizService.setCategory(category);
-            sendCurrentQuestion(session);
-            quizService.startTimer();
         } else if (payload.startsWith("ANSWER:")) {
             int answer = Integer.parseInt(payload.substring("ANSWER:".length()));
             String userName = sessions.get(session);
             quizService.submitAnswer(userName, answer);
             boolean correct = answer == quizService.getCurrentQuestion().getCorrectOption();
-            session.sendMessage(new TextMessage("ANSWER_RESULT|" + (correct ? "correct" : "incorrect") + "|100"));
-            broadcastLeaderboard();
+
+                session.sendMessage(new TextMessage("ANSWER_RESULT|" + (correct ? "correct" : "incorrect") + "|100"));
             if (quizService.getCurrentAnswersSize() == 0) {
                 quizService.nextQuestion();
                 broadcastQuestion();
@@ -60,9 +55,8 @@ public class QuizWebSocketHandler extends TextWebSocketHandler {
             }
         } else if (payload.equals("TIME_UP")) {
             String userName = sessions.get(session);
-            quizService.submitAnswer(userName, 0);  // Неправильный ответ
-            session.sendMessage(new TextMessage("ANSWER_RESULT|incorrect|0"));  // Показать результат
-            broadcastLeaderboard();
+            quizService.submitAnswer(userName, 0);
+            //session.sendMessage(new TextMessage("ANSWER_RESULT|incorrect|0"));
             if (quizService.getCurrentAnswersSize() == 0) {
                 quizService.nextQuestion();
                 broadcastQuestion();
@@ -77,10 +71,11 @@ public class QuizWebSocketHandler extends TextWebSocketHandler {
         session.sendMessage(new TextMessage(msg));
     }
 
-    private void broadcastQuestion() throws IOException {
+    public void broadcastQuestion() throws IOException {
         QuizQuestion q = quizService.getCurrentQuestion();
         String msg = "QUESTION|" + q.getQuestion() + "|" + q.getOption1() + "|" + q.getOption2() + "|" + q.getOption3() + "|" + q.getOption4();
         broadcast(msg);
+        broadcastLeaderboard();
     }
 
     private void sendLeaderboard(WebSocketSession session) throws IOException {

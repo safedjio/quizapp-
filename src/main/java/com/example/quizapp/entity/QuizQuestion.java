@@ -17,8 +17,7 @@ public class QuizQuestion {
     private String option3;
     private String option4;
     private int correctOption; // 1-4
-    private int timeLimit;  // Таймер в секундах (по умолчанию 30)
-    private String category;  // Категория: JavaNovice или JavaAdvanced
+    private int timeLimit;
     // Геттеры и сеттеры
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
@@ -36,6 +35,4 @@ public class QuizQuestion {
     public void setCorrectOption(int correctOption) { this.correctOption = correctOption; }
     public int getTimeLimit() { return timeLimit; }
     public void setTimeLimit(int timeLimit) { this.timeLimit = timeLimit; }
-    public String getCategory() { return category; }
-    public void setCategory(String category) { this.category = category; }
 }
