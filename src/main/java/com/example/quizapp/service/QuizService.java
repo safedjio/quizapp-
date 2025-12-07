@@ -99,7 +99,6 @@ public class QuizService {
         if (timeLimit <= 0) timeLimit = 30;
         currentTimer = timerExecutor.schedule(() -> {
             processTimeout();
-            nextQuestion();
         }, timeLimit, TimeUnit.SECONDS);
     }
 

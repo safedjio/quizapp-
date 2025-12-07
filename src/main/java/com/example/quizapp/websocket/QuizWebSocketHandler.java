@@ -31,6 +31,7 @@ public class QuizWebSocketHandler extends TextWebSocketHandler {
 
     @Override
     public void afterConnectionClosed(WebSocketSession session, org.springframework.web.socket.CloseStatus status) throws Exception {
+        quizService.nextQuestion();
         sessions.remove(session);
         quizService.removeClient();
     }
@@ -49,16 +50,13 @@ public class QuizWebSocketHandler extends TextWebSocketHandler {
 
                 session.sendMessage(new TextMessage("ANSWER_RESULT|" + (correct ? "correct" : "incorrect") + "|100"));
             if (quizService.getCurrentAnswersSize() == 0) {
-                quizService.nextQuestion();
                 broadcastQuestion();
                 quizService.startTimer();
             }
         } else if (payload.equals("TIME_UP")) {
             String userName = sessions.get(session);
             quizService.submitAnswer(userName, 0);
-            //session.sendMessage(new TextMessage("ANSWER_RESULT|incorrect|0"));
             if (quizService.getCurrentAnswersSize() == 0) {
-                quizService.nextQuestion();
                 broadcastQuestion();
                 quizService.startTimer();
             }

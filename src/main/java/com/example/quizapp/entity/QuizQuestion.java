@@ -16,7 +16,7 @@ public class QuizQuestion {
     private String option2;
     private String option3;
     private String option4;
-    private int correctOption; // 1-4
+    private int correctOption;
     private int timeLimit;
     // Геттеры и сеттеры
     public Long getId() { return id; }
