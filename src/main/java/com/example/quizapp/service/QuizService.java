@@ -27,6 +27,7 @@ public class QuizService {
     private int totalClients = 0;
     private ScheduledExecutorService timerExecutor = Executors.newScheduledThreadPool(1);
     private ScheduledFuture<?> currentTimer;
+    private boolean isFinished = false;
 
     @PostConstruct
     public void init() {
@@ -81,8 +82,22 @@ public class QuizService {
         currentAnswers.clear();
     }
 
+    public boolean isFinished() { return isFinished; }
+
     public void nextQuestion() {
-        currentIndex = (currentIndex + 1) % questions.size();
+        if (currentIndex < questions.size() - 1) {
+            currentIndex++;
+        } else {
+            isFinished = true;
+        }
+    }
+
+    public int getTotalQuestions() {
+        return questions.size();
+    }
+
+    public int getCurrentIndex() {
+        return currentIndex;
     }
 
     public List<UserScore> getLeaderboard() {

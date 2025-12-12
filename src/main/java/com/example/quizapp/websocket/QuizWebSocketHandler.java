@@ -65,15 +65,23 @@ public class QuizWebSocketHandler extends TextWebSocketHandler {
 
     private void sendCurrentQuestion(WebSocketSession session) throws IOException {
         QuizQuestion q = quizService.getCurrentQuestion();
-        String msg = "QUESTION|" + q.getQuestion() + "|" + q.getOption1() + "|" + q.getOption2() + "|" + q.getOption3() + "|" + q.getOption4();
+        String msg = "QUESTION|" + (quizService.getCurrentIndex() + 1) + "|" + quizService.getTotalQuestions() + "|"
+                + q.getQuestion() + "|" + q.getOption1() + "|" + q.getOption2() + "|" + q.getOption3() + "|" + q.getOption4();
         session.sendMessage(new TextMessage(msg));
     }
 
     public void broadcastQuestion() throws IOException {
-        QuizQuestion q = quizService.getCurrentQuestion();
-        String msg = "QUESTION|" + q.getQuestion() + "|" + q.getOption1() + "|" + q.getOption2() + "|" + q.getOption3() + "|" + q.getOption4();
-        broadcast(msg);
-        broadcastLeaderboard();
+        if (quizService.isFinished()) {
+            broadcast("FINISHED");
+            broadcastLeaderboard();
+        } else {
+            QuizQuestion q = quizService.getCurrentQuestion();
+            String msg = "QUESTION|" + (quizService.getCurrentIndex() + 1) + "|" + quizService.getTotalQuestions() + "|"
+                    + q.getQuestion() + "|" + q.getOption1() + "|" + q.getOption2() + "|" + q.getOption3() + "|" + q.getOption4();
+            broadcast(msg);
+            broadcastLeaderboard();
+            quizService.startTimer();
+        }
     }
 
     private void sendLeaderboard(WebSocketSession session) throws IOException {

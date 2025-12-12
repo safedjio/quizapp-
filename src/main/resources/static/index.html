@@ -187,7 +187,8 @@
             <div class="card p-4">
                 <h2 class="text-center mb-4"><i class="fas fa-question-circle"></i> Викторина</h2>
                 <div class="question-area">
-                    <h4 id="question">Вопрос</h4>
+                    <h4 id="questionHeader">Вопрос</h4>
+                    <p id="questionText">Текст вопроса</p>
                 </div>
                 <div class="timer-container">
                     <div class="timer-bar">
@@ -220,6 +221,15 @@
                         <div class="toast-body">
                             <i class="fas fa-check-circle me-2" id="resultIcon"></i>
                             <span id="scoreMessage"></span>
+                        </div>
+                        <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+                    </div>
+                </div>
+                <div id="finishedToast" class="toast align-items-center text-white bg-success border-0" role="alert" aria-live="assertive" aria-atomic="true">
+                    <div class="d-flex">
+                        <div class="toast-body">
+                            <i class="fas fa-trophy me-2"></i>
+                            Успешно пройдено!
                         </div>
                         <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
                     </div>
@@ -266,11 +276,13 @@
     let timerInterval;
     let timeLeft;
     let totalTime = 30;
-    let nameToast, scoreToast, errorToast;
+    let nameToast, scoreToast, finishedToast, errorToast;
+    let isFinished = false;
 
     window.onload = function() {
         nameToast = new bootstrap.Toast(document.getElementById('nameToast'), { autohide: false });
         scoreToast = new bootstrap.Toast(document.getElementById('scoreToast'), { delay: 2000 });
+        finishedToast = new bootstrap.Toast(document.getElementById('finishedToast'), { delay: 5000 });
         errorToast = new bootstrap.Toast(document.getElementById('errorToast'), { delay: 2000 });
         showNamePrompt();
     };
@@ -312,18 +324,33 @@
         console.log('Received: ' + msg);
         if (msg.startsWith("QUESTION|")) {
             const parts = msg.split("|");
-            if (parts.length >= 6) {
-                document.getElementById('question').textContent = parts[1];
-                document.getElementById('option1').textContent = parts[2];
-                document.getElementById('option2').textContent = parts[3];
-                document.getElementById('option3').textContent = parts[4];
-                document.getElementById('option4').textContent = parts[5];
+            if (parts.length >= 8) {
+                const questionNumber = parseInt(parts[1]);
+                const totalQuestions = parseInt(parts[2]);
+                const questionText = parts[3];
+                const option1 = parts[4];
+                const option2 = parts[5];
+                const option3 = parts[6];
+                const option4 = parts[7];
+                document.getElementById('questionHeader').textContent = `Вопрос ${questionNumber} из ${totalQuestions}`;
+                document.getElementById('questionText').textContent = questionText;
+                document.getElementById('option1').textContent = option1;
+                document.getElementById('option2').textContent = option2;
+                document.getElementById('option3').textContent = option3;
+                document.getElementById('option4').textContent = option4;
                 timeLeft = totalTime;  // Всегда 30
                 startTimer();
                 document.querySelectorAll('input[name="answer"]').forEach(r => r.checked = false);
                 selectedAnswer = 0;
                 document.getElementById('submitBtn').disabled = false;
+                isFinished = false;
             }
+        } else if (msg === "FINISHED") {
+            isFinished = true;
+            clearInterval(timerInterval);
+            document.getElementById('submitBtn').disabled = true;
+            document.querySelectorAll('input[name="answer"]').forEach(r => r.disabled = true);
+            finishedToast.show();
         } else if (msg.startsWith("LEADERBOARD|")) {
             const tbody = document.getElementById('leaderboardBody');
             tbody.innerHTML = '';
@@ -377,12 +404,14 @@
             if (timeLeft <= 5) {
                 document.getElementById('timerText').classList.add('timer-warning');  // Пульсация при <5 сек
             }
-            if (timeLeft <= 0 ) {
+            if (timeLeft <= 0) {
                 clearInterval(timerInterval);
                 document.getElementById('timerText').classList.remove('timer-warning');
-                ws.send("TIME_UP");
-                document.getElementById('submitBtn').disabled = true;
-                showErrorToast('Время истекло!');
+                if (!isFinished) {
+                    ws.send("TIME_UP");
+                    document.getElementById('submitBtn').disabled = true;
+                    showErrorToast('Время истекло!');
+                }
             }
         }, 1000);
     }
